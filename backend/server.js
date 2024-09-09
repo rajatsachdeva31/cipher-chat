@@ -16,7 +16,9 @@ app.use(
   })
 );
 
-app.get("/", (req, res) => {});
+app.get("/", (req, res) => {
+  res.status(200).json('Welcome, your app is working well');
+});
 
 const PORT = 8080;
 
