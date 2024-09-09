@@ -4,7 +4,7 @@ const { createServer } = require("http");
 const socketSetup = require("./socket");
 const app = express();
 const server = createServer(app);
-const URL = process.env.BASE_URL || "http://localhost:3000";
+const URL = process.env.BASE_URL;
 
 app.use(express.json());
 app.use(
