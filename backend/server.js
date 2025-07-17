@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { createServer } = require("http");
-const socketSetup = require("./socket");
+const socketSetup = require("./api/socket");
 const app = express();
 const server = createServer(app);
 const URL = process.env.BASE_URL || "http://localhost:3000";

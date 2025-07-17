@@ -3,13 +3,16 @@ let unpairedUsers = [];
 
 const addUser = (userId, socketId) => {
   const existingUser = onlineUsers.find((user) => user.userId === userId);
-  const existingUser_ = onlineUsers.find((user) => user.socketId === socketId);
+  const existingSocket = onlineUsers.find((user) => user.socketId === socketId);
 
-  if (existingUser) {
-    return { error: "Userid is taken" };
-  }
-  if (existingUser_) {
+  // Remove existing socket if found
+  if (existingSocket) {
     removeUser(socketId);
+  }
+
+  // Remove existing user with same userId (for page refresh case)
+  if (existingUser) {
+    removeUser(existingUser.socketId);
   }
 
   const user = { userId, socketId };
@@ -30,15 +33,13 @@ const addUnpairedUser = (userId) => {
   return {};
 };
 
+// Make sure removeUser function returns the removed user
 const removeUser = (socketId) => {
-  const allOnlineUsers = [...onlineUsers];
-  const filteredOnlineUsers = onlineUsers.filter(
-    (user) => user.socketId !== socketId
-  );
-
-  onlineUsers = filteredOnlineUsers;
-
-  return allOnlineUsers.find((user) => user.socketId === socketId);
+  const index = onlineUsers.findIndex((user) => user.socketId === socketId);
+  if (index !== -1) {
+    return onlineUsers.splice(index, 1)[0];
+  }
+  return null;
 };
 
 const removeUnpairedUser = (userId) => {

@@ -45,25 +45,34 @@ module.exports = function (server) {
       removeUnpairedUser(user ? user.userId : null);
     });
 
+    socket.on("unpaired", (receiver, callback) => {
+      const user = getUser(receiver);
+      io.to(user ? user.socketId : null).emit("unpaired");
+      if (callback && typeof callback === "function") {
+        callback();
+      }
+    });
+
     socket.on("closed", (userId, callback) => {
       removeUnpairedUser(userId);
-      callback();
+      if (callback && typeof callback === "function") {
+        callback();
+      }
     });
 
     socket.on("sendMessage", (receiver, message, callback) => {
       const user = getUser(receiver);
       if (!user) {
-        return callback("User not found");
+        if (callback && typeof callback === "function") {
+          return callback("User not found");
+        }
+        return;
       }
       io.to(user.socketId).emit("sendMessage", message);
       io.to(socket.id).emit("receiveMessage", message);
-      callback();
-    });
-
-    socket.on("unpaired", (receiver, callback) => {
-      const user = getUser(receiver);
-      io.to(user ? user.socketId : null).emit("unpaired");
-      callback();
+      if (callback && typeof callback === "function") {
+        callback();
+      }
     });
 
     socket.on("typing", (userId) => {
@@ -78,24 +87,49 @@ module.exports = function (server) {
 
     socket.on("screen-off", () => {
       const user = removeUser(socket.id);
-      removeUnpairedUser(user.userId);
+      if (user) {
+        removeUnpairedUser(user.userId);
+      }
       const onlineUsers = getUsers();
       io.emit("getUsers", onlineUsers);
     });
 
     socket.on("offline", () => {
       const user = removeUser(socket.id);
-      removeUnpairedUser(user.userId);
+      if (user) {
+        removeUnpairedUser(user.userId);
+      }
       const onlineUsers = getUsers();
       io.emit("getUsers", onlineUsers);
     });
 
     socket.on("disconnect", () => {
-      const user = removeUser(socket.id);
-      removeUnpairedUser(user ? user.userId : null);
-      const onlineUsers = getUsers();
-      io.emit("getUsers", onlineUsers);
-      console.log("A user disconnected");
+      console.log(`${socket.id} user disconnected!`);
+
+      // Remove user by socket ID
+      const disconnectedUser = removeUser(socket.id);
+
+      if (disconnectedUser) {
+        // Remove from unpaired users if they were searching
+        removeUnpairedUser(disconnectedUser.userId);
+
+        // Notify all users about updated online count
+        const onlineUsers = getUsers();
+        io.emit("getUsers", onlineUsers);
+
+        // If user was in a chat, notify their partner
+        io.emit("userDisconnected", disconnectedUser.userId);
+
+        console.log(
+          `User ${disconnectedUser.userId} disconnected. Online users: ${onlineUsers.length}`
+        );
+      }
+    });
+
+    // Add a new event to handle partner disconnection
+    socket.on("userDisconnected", (disconnectedUserId) => {
+      socket.emit("unpaired");
+      socket.emit("partnerDisconnected");
     });
   });
 };
