@@ -107,7 +107,7 @@ const Home = () => {
                   className="h-14 px-8 rounded-xl text-md md:text-lg shadow-lg bg-gradient-to-r from-sky-500 to-blue-600 text-white font-semibold tracking-wide cursor-pointer hover:from-sky-600 hover:to-blue-700 transform hover:scale-105 transition duration-300 flex items-center gap-2"
                 >
                   <FontAwesomeIcon icon={faRocket} />
-                  Start Chat
+                  Text Chat
                 </button>
               </Link>
               <span className="text-gray-500">or</span>
@@ -115,12 +115,11 @@ const Home = () => {
                 type="button"
                 className="h-14 px-8 rounded-xl text-md md:text-lg shadow-md bg-gray-300 text-gray-600 font-semibold tracking-wide cursor-not-allowed opacity-50 transition duration-300"
               >
-                Video Chat
+                Video Call
               </button>
             </div>
           </div>
           <p className="text-sm">
-            <FontAwesomeIcon icon={faLock} className="mr-1" />
             Video chat coming soon • No registration required • Completely
             anonymous
           </p>
@@ -146,9 +145,7 @@ const Home = () => {
                 />
               </div>
               <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-              <p className="leading-relaxed">
-                {feature.description}
-              </p>
+              <p className="leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
